@@ -1,4 +1,4 @@
-package com.cmpe281restpackage;
+package com.cmpe281.restpackage;
 
 // REF:  http://restlet.com/technical-resources/restlet-framework/guide/2.3/editions/jse/overview
 

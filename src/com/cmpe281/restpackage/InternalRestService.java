@@ -1,4 +1,4 @@
-package com.cmpe281restpackage;
+package com.cmpe281.restpackage;
 
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
