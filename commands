@@ -1,0 +1,11 @@
+sudo rm -r build/*
+javac -cp lib/\* -d build src/restpackage/*.java
+javac -cp lib/\* -d build src/paulpackage/*.java
+java -cp build:lib/\* restpackage/SimpleRestServiceApplication
+
+______________________________________________________________
+
+rm build/*
+javac -cp lib/\* -d build src/*.java
+java -cp build:lib/org.restlet.jar HelloWorldServer
+java -cp build:lib/\* HelloClient
