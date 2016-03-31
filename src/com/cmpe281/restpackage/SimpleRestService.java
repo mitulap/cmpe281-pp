@@ -51,7 +51,14 @@ public class SimpleRestService extends ServerResource {
 	
 	protected static boolean isSlave = false;
 	private static final Logger logger = Logger.getLogger(SimpleRestService.class);
-	 
+	
+	private ArrayList<PartitionDetectionRequestHandler> nodePartitionRequestList = new ArrayList<PartitionDetectionRequestHandler>();
+	
+	
+	public SimpleRestService(){
+		nodePartitionRequestList.add(new PartitionDetectionRequestHandler(SLAVE_1_URL, INT_PORT, FILLER_URL, POST_INTERNAL_URL));
+	}
+	
 	KeyValueStorage kvstorage = new KeyValueStorage() ;
 /*      @Get
 	public String represent() {
@@ -89,6 +96,7 @@ public class SimpleRestService extends ServerResource {
 
 	@Post
 	public String postSomething(Representation entity) throws ResourceException, IOException {
+		
 		String s = null;
 		
 	    if (entity.getMediaType().isCompatible(MediaType.APPLICATION_JSON)) s = entity.getText();
@@ -97,7 +105,25 @@ public class SimpleRestService extends ServerResource {
 	    String[] data = s.split(":");
 	    data[0] = data[0].replaceAll("[^a-zA-Z]","");
 	    
-	    if(isSlave) return postRedirect(data[0],data[1]);
+	    if(isSlave){ 
+	    	
+	    	//executing request queue
+	    	nodePartitionRequestList.get(0).executeRequestQueue();
+	    	return postRedirect(data[0],data[1]);
+	    }
+	    else{
+	    	if(isInPartition()){
+				//setting Request Pojo object
+	    		RequestPojo request = new RequestPojo();
+				request.setRequestType("post");
+				request.setRequestKey(data[0]);
+				request.setRequestValue(data[1]);
+				//insert request for nodes which are in partition mode.
+				//currently adding for one node for testing.
+				
+				nodePartitionRequestList.get(0).generateQueue(request);
+	    	}
+	    }
 	    
 	    System.out.println("returning...." + s);
 		kvstorage.store(data[0], data[1]);
@@ -105,6 +131,11 @@ public class SimpleRestService extends ServerResource {
 		return s;
 	}
 	
+	private boolean isInPartition() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 	private String postRedirect (String key, String value) {
 		String url = MASTER_URL + INT_PORT + FILLER_URL + POST_INTERNAL_URL;
 		System.out.println ("Slave can't process post, redirecting to master: " + url);
